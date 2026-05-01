@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-display: 'Syne', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: #0A0A0F;
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: #B8FF3A;
+    color: #0A0A0F;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0A0A0F;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1E1E2E;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3A3A5C;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-signal text-white font-display font-semibold px-6 py-3 rounded-lg
+           hover:bg-signal-light transition-colors duration-200 text-sm tracking-wide;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-white font-display font-semibold px-6 py-3 rounded-lg
+           border border-ink-600 hover:border-ink-400 transition-colors duration-200 text-sm tracking-wide;
+  }
+
+  .card {
+    @apply bg-ink-800 border border-ink-600 rounded-xl p-6;
+  }
+
+  .input {
+    @apply w-full bg-ink-800 border border-ink-600 rounded-lg px-4 py-3
+           text-white placeholder-ink-400 font-body text-sm
+           focus:outline-none focus:border-signal focus:ring-1 focus:ring-signal
+           transition-colors duration-200;
+  }
+
+  .label {
+    @apply text-xs font-display font-semibold text-ink-200 tracking-widest uppercase mb-2 block;
+  }
+
+  .price-badge {
+    @apply inline-flex items-center gap-1.5 bg-signal/10 text-signal
+           border border-signal/20 rounded-full px-3 py-1 text-xs font-mono font-medium;
+  }
+
+  .tag {
+    @apply inline-flex items-center gap-1 bg-ink-700 border border-ink-600
+           rounded-md px-2.5 py-1 text-xs font-mono text-ink-200;
+  }
+}
