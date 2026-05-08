@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pricetag — Track prices. Buy at the right time.</title>
+  <meta name="description" content="Track product prices from Amazon & Flipkart. Get notified when prices drop to your target." />
+  <meta property="og:title" content="Pricetag — Price Tracker" />
+  <meta property="og:description" content="Track prices. Buy at the right time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink-900: #0A0A0F;
+      --ink-800: #1A1A2E;
+      --ink-700: #22223A;
+      --ink-600: #3A3A5C;
+      --ink-400: #7A7A9A;
+      --ink-200: #C4C4D4;
+      --signal: #FF3D2E;
+      --signal-light: #FF6B5E;
+      --lime: #B8FF3A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink-900);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--lime); color: var(--ink-900); }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--ink-900); }
+    ::-webkit-scrollbar-thumb { background: var(--ink-700); border-radius: 3px; }
+
+    /* Grid bg */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .logo span { color: var(--signal); }
+
+    .nav-links { display: flex; align-items: center; gap: 1rem; }
+
+    .btn {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+    }
+
+    .btn-primary { background: var(--signal); color: #fff; }
+    .btn-primary:hover { background: var(--signal-light); }
+    .btn-ghost { background: transparent; color: var(--ink-200); border: 1px solid transparent; }
+    .btn-ghost:hover { color: #fff; }
+    .btn-outline { background: transparent; color: #fff; border: 1px solid var(--ink-600); }
+    .btn-outline:hover { border-color: var(--ink-400); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem 8rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-cards { display: none; }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(184,255,58,0.1);
+      border: 1px solid rgba(184,255,58,0.2);
+      border-radius: 9999px;
+      padding: 0.375rem 1rem;
+      margin-bottom: 2rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--lime);
+      letter-spacing: 0.05em;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--lime);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 .red { color: var(--signal); }
+
+    .hero-sub {
+      color: var(--ink-200);
+      font-size: 1.125rem;
+      line-height: 1.7;
+      font-weight: 300;
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .btn-lg { padding: 1rem 2rem; font-size: 1rem; border-radius: 0.75rem; }
+
+    /* PRODUCT CARDS */
+    .hero-cards {
+      position: relative;
+      height: 480px;
+    }
+
+    .product-card {
+      position: absolute;
+      background: var(--ink-800);
+      border: 1px solid var(--ink-600);
+      border-radius: 0.875rem;
+      padding: 1rem;
+      width: 280px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .product-card:nth-child(1) { top: 0; right: 60px; animation-delay: 0.2s; }
+    .product-card:nth-child(2) { top: 150px; right: 0; animation-delay: 0.35s; }
+    .product-card:nth-child(3) { top: 300px; right: 80px; animation-delay: 0.5s; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .card-icon { width: 40px; height: 40px; background: var(--ink-700); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+    .card-site { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--ink-400); background: var(--ink-700); border: 1px solid var(--ink-600); border-radius: 0.25rem; padding: 2px 6px; }
+    .card-title { font-size: 0.8rem; color: #fff; font-weight: 500; line-height: 1.4; margin-bottom: 0.625rem; }
+    .card-price { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.375rem; }
+    .card-current { font-family: 'Syne', sans-serif; font-size: 1.375rem; font-weight: 700; color: var(--signal); }
+    .card-original { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--ink-400); text-decoration: line-through; }
+    .card-drop { display: flex; align-items: center; gap: 0.375rem; font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--lime); }
+    .drop-dot { width: 5px; height: 5px; background: var(--lime); border-radius: 50%; }
+
+    /* STATS */
+    .stats {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--ink-700);
+      border-bottom: 1px solid var(--ink-700);
+      background: rgba(26,26,46,0.5);
+      padding: 2rem 2rem;
+    }
+
+    .stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+
+    @media (max-width: 600px) { .stats-inner { grid-template-columns: repeat(2, 1fr); } }
+
+    .stat { text-align: center; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+    .stat-label { font-size: 0.8rem; color: var(--ink-400); }
+
+    /* HOW IT WORKS */
+    .section {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-400);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 3.5rem;
+      line-height: 1.1;
+    }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    @media (max-width: 700px) { .steps { grid-template-columns: 1fr; } }
+
+    .step-card {
+      background: var(--ink-800);
+      border: 1px solid var(--ink-600);
+      border-radius: 0.875rem;
+      padding: 1.75rem;
+      transition: border-color 0.3s;
+    }
+
+    .step-card:hover { border-color: rgba(255,61,46,0.4); }
+
+    .step-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--ink-700);
+      margin-bottom: 1rem;
+      transition: color 0.3s;
+      line-height: 1;
+    }
+
+    .step-card:hover .step-num { color: rgba(255,61,46,0.2); }
+
+    .step-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .step-desc { color: var(--ink-200); font-size: 0.875rem; line-height: 1.65; }
+
+    /* FEATURES */
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 700px) { .features { grid-template-columns: 1fr; } }
+
+    .feature {
+      background: var(--ink-800);
+      border: 1px solid var(--ink-600);
+      border-radius: 0.875rem;
+      padding: 1.5rem;
+    }
+
+    .feature-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+    .feature-title { font-family: 'Syne', sans-serif; font-weight: 600; margin-bottom: 0.5rem; }
+    .feature-desc { color: var(--ink-400); font-size: 0.8rem; line-height: 1.6; }
+
+    /* CTA */
+    .cta-section {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 6rem;
+    }
+
+    .cta-box {
+      background: var(--signal);
+      border-radius: 1.25rem;
+      padding: 4rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 70% 50%, rgba(255,255,255,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .cta-box h2 { color: #fff; margin-bottom: 0.75rem; text-align: center; }
+    .cta-sub { color: rgba(255,255,255,0.8); font-size: 1.125rem; margin-bottom: 2rem; }
+
+    .btn-dark {
+      background: var(--ink-900);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      padding: 1rem 2rem;
+      border-radius: 0.75rem;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+      position: relative;
+    }
+
+    .btn-dark:hover { background: var(--ink-800); }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--ink-700);
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    footer p { color: var(--ink-400); font-size: 0.8rem; }
+
+    /* STACK */
+    .stack-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1.5rem; }
+    .pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--ink-400);
+      background: var(--ink-800);
+      border: 1px solid var(--ink-600);
+      border-radius: 0.25rem;
+      padding: 4px 10px;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      z-index: 100; display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--ink-800);
+      border: 1px solid var(--ink-600);
+      border-radius: 1rem;
+      padding: 2rem;
+      width: 100%;
+      max-width: 420px;
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal h3 { font-family: 'Syne', sans-serif; font-size: 1.375rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .modal-sub { color: var(--ink-400); font-size: 0.85rem; margin-bottom: 1.5rem; }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label { display: block; font-family: 'DM Mono', monospace; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-200); margin-bottom: 0.5rem; }
+
+    .form-input {
+      width: 100%;
+      background: var(--ink-900);
+      border: 1px solid var(--ink-600);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--signal); }
+    .form-input::placeholder { color: var(--ink-400); }
+
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; color: var(--ink-400);
+      cursor: pointer; font-size: 1.25rem; line-height: 1;
+    }
+    .modal-close:hover { color: #fff; }
+    .modal-relative { position: relative; }
+
+    .error-msg { color: var(--signal); font-size: 0.8rem; margin-top: 0.75rem; display: none; }
+    .success-msg { text-align: center; display: none; }
+    .success-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+
+    .tab-row { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .tab { flex: 1; padding: 0.625rem; border-radius: 0.5rem; border: 1px solid var(--ink-600); background: transparent; color: var(--ink-400); font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+    .tab.active { background: var(--signal); border-color: var(--signal); color: #fff; }
+
+    .divider { height: 1px; background: var(--ink-600); margin: 1.25rem 0; }
+    .or { text-align: center; color: var(--ink-400); font-size: 0.75rem; position: relative; margin: 1rem 0; }
+    .or::before, .or::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: var(--ink-600); }
+    .or::before { left: 0; }
+    .or::after { right: 0; }
+
+    .switch-text { text-align: center; font-size: 0.8rem; color: var(--ink-400); margin-top: 1.25rem; }
+    .switch-text a { color: var(--signal); text-decoration: none; cursor: pointer; }
+    .switch-text a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="logo">price<span>tag</span></a>
+    <div class="nav-links">
+      <a href="#how" class="btn btn-ghost">How it works</a>
+      <button class="btn btn-primary" onclick="openModal('login')">Get started free</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Now tracking Amazon &amp; Flipkart
+      </div>
+      <h1>Stop paying<br><span class="red">full price.</span></h1>
+      <p class="hero-sub">
+        Track any product. Set your target price. We watch it 24/7 and email you the moment it drops.
+      </p>
+      <div class="hero-btns">
+        <button class="btn btn-primary btn-lg" onclick="openModal('signup')">
+          Start tracking for free →
+        </button>
+        <button class="btn btn-outline btn-lg" onclick="openModal('login')">
+          Sign in
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-cards">
+      <div class="product-card">
+        <div class="card-top">
+          <div class="card-icon">🎧</div>
+          <span class="card-site">Amazon</span>
+        </div>
+        <p class="card-title">boAt Airdopes 141 Bluetooth Earbuds</p>
+        <div class="card-price">
+          <span class="card-current">₹799</span>
+          <span class="card-original">₹1,990</span>
+        </div>
+        <div class="card-drop"><span class="drop-dot"></span>↓ 60% drop detected</div>
+      </div>
+
+      <div class="product-card">
+        <div class="card-top">
+          <div class="card-icon">⌚</div>
+          <span class="card-site">Flipkart</span>
+        </div>
+        <p class="card-title">Noise ColorFit Pro 4 Smartwatch</p>
+        <div class="card-price">
+          <span class="card-current">₹2,499</span>
+          <span class="card-original">₹5,999</span>
+        </div>
+        <div class="card-drop"><span class="drop-dot"></span>↓ 58% drop detected</div>
+      </div>
+
+      <div class="product-card">
+        <div class="card-top">
+          <div class="card-icon">🔌</div>
+          <span class="card-site">Amazon</span>
+        </div>
+        <p class="card-title">Samsung 65W Super Fast Charger</p>
+        <div class="card-price">
+          <span class="card-current">₹899</span>
+          <span class="card-original">₹1,499</span>
+        </div>
+        <div class="card-drop"><span class="drop-dot"></span>↓ 40% drop detected</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stats-inner">
+      <div class="stat"><div class="stat-value">₹2.4L+</div><div class="stat-label">Saved by users</div></div>
+      <div class="stat"><div class="stat-value">50K+</div><div class="stat-label">Products tracked</div></div>
+      <div class="stat"><div class="stat-value">24/7</div><div class="stat-label">Price monitoring</div></div>
+      <div class="stat"><div class="stat-value">&lt;2 min</div><div class="stat-label">Setup time</div></div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <p class="section-label">How it works</p>
+    <h2>Three steps to savings</h2>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Paste a product URL</div>
+        <p class="step-desc">Copy any Amazon or Flipkart product link and paste it into Pricetag. We instantly fetch the title, image, and current price.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Set your target price</div>
+        <p class="step-desc">Tell us what price you'd be happy paying. We'll watch the listing 24/7 and track every price movement in a history chart.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Get the alert</div>
+        <p class="step-desc">We email you the moment the price hits your target. One click takes you straight to the product to complete your purchase.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" style="padding-top:0">
+    <p class="section-label">Features</p>
+    <h2>Everything you need</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">📈</div>
+        <div class="feature-title">Price history chart</div>
+        <p class="feature-desc">See how a product's price has moved over time. Spot trends and decide the perfect moment to buy.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔔</div>
+        <div class="feature-title">Instant email alerts</div>
+        <p class="feature-desc">Beautiful HTML email notifications the moment your target price is hit. Never miss a flash sale again.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔐</div>
+        <div class="feature-title">Secure auth</div>
+        <p class="feature-desc">Email/password auth with Supabase. Your watchlist and alerts are private to you — protected with Row Level Security.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⏱️</div>
+        <div class="feature-title">Automated scraping</div>
+        <p class="feature-desc">Vercel Cron automatically checks prices daily. Set it and forget it — Pricetag does the watching for you.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Wishlist dashboard</div>
+        <p class="feature-desc">A clean dashboard to manage all your tracked products, view price drops, and set or update alert targets.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Multi-site support</div>
+        <p class="feature-desc">Works with Amazon India, Flipkart, and more. Paste any supported product URL and start tracking instantly.</p>
+      </div>
+    </div>
+
+    <div class="stack-pills">
+      <span class="pill">Next.js 14</span>
+      <span class="pill">Supabase Auth</span>
+      <span class="pill">PostgreSQL</span>
+      <span class="pill">Cheerio</span>
+      <span class="pill">Resend</span>
+      <span class="pill">Tailwind CSS</span>
+      <span class="pill">Vercel Cron</span>
+      <span class="pill">TypeScript</span>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-box">
+      <h2>Ready to never overpay again?</h2>
+      <p class="cta-sub">Free to use. No credit card required.</p>
+      <button class="btn-dark" onclick="openModal('signup')">
+        Create free account →
+      </button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="#" class="logo">price<span>tag</span></a>
+    <p>© 2026 Pricetag. Built with Next.js &amp; Supabase. By <a href="https://github.com/RitikaT26" style="color:var(--signal);text-decoration:none">RitikaT26</a>.</p>
+  </footer>
+
+  <!-- AUTH MODAL -->
+  <div class="modal-overlay" id="authModal" onclick="closeModalOutside(event)">
+    <div class="modal modal-relative">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+
+      <!-- Tab row -->
+      <div class="tab-row">
+        <button class="tab active" id="tabLogin" onclick="switchTab('login')">Sign in</button>
+        <button class="tab" id="tabSignup" onclick="switchTab('signup')">Create account</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <h3>Welcome back</h3>
+        <p class="modal-sub">Sign in to your Pricetag account</p>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" id="loginEmail" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="loginPassword" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter') submitLogin()" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;padding:.875rem;font-size:.9rem;border-radius:.625rem;justify-content:center" onclick="submitLogin()">
+          Sign in →
+        </button>
+        <p class="error-msg" id="loginError"></p>
+        <p class="switch-text">No account? <a onclick="switchTab('signup')">Create one free</a></p>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signupForm" style="display:none">
+        <h3>Create account</h3>
+        <p class="modal-sub">Free forever. No credit card needed.</p>
+        <div class="form-group">
+          <label class="form-label">Full name</label>
+          <input class="form-input" type="text" id="signupName" placeholder="Your name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" id="signupEmail" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="signupPassword" placeholder="Min 8 characters"
+            onkeydown="if(event.key==='Enter') submitSignup()" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;padding:.875rem;font-size:.9rem;border-radius:.625rem;justify-content:center" onclick="submitSignup()">
+          Create account →
+        </button>
+        <p class="error-msg" id="signupError"></p>
+        <p class="switch-text">Already have an account? <a onclick="switchTab('login')">Sign in</a></p>
+      </div>
+
+      <!-- SUCCESS -->
+      <div id="successMsg" class="success-msg">
+        <div class="success-icon">📬</div>
+        <h3 style="font-family:Syne,sans-serif;margin-bottom:.5rem">Check your inbox!</h3>
+        <p style="color:var(--ink-400);font-size:.875rem;line-height:1.6">We sent a confirmation email. Click the link to activate your account and start tracking prices.</p>
+        <button class="btn btn-outline" style="margin-top:1.25rem;width:100%;justify-content:center" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Modal ───────────────────────────────────────────
+    function openModal(tab) {
+      switchTab(tab)
+      document.getElementById('authModal').classList.add('open')
+      document.body.style.overflow = 'hidden'
+    }
+
+    function closeModal() {
+      document.getElementById('authModal').classList.remove('open')
+      document.body.style.overflow = ''
+    }
+
+    function closeModalOutside(e) {
+      if (e.target === document.getElementById('authModal')) closeModal()
+    }
+
+    function switchTab(tab) {
+      const isLogin = tab === 'login'
+      document.getElementById('loginForm').style.display = isLogin ? '' : 'none'
+      document.getElementById('signupForm').style.display = isLogin ? 'none' : ''
+      document.getElementById('successMsg').style.display = 'none'
+      document.getElementById('tabLogin').className = 'tab' + (isLogin ? ' active' : '')
+      document.getElementById('tabSignup').className = 'tab' + (!isLogin ? ' active' : '')
+    }
+
+    // ─── Demo form handlers ──────────────────────────────
+    function submitLogin() {
+      const email = document.getElementById('loginEmail').value.trim()
+      const pass = document.getElementById('loginPassword').value
+      const errEl = document.getElementById('loginError')
+
+      if (!email || !pass) {
+        errEl.textContent = 'Please fill in all fields.'
+        errEl.style.display = 'block'
+        return
+      }
+
+      errEl.style.display = 'none'
+      // In production this calls Supabase Auth — replace with your deployed app URL
+      errEl.textContent = '✓ Connect this to your deployed Next.js app for live auth.'
+      errEl.style.color = 'var(--lime)'
+      errEl.style.display = 'block'
+    }
+
+    function submitSignup() {
+      const name = document.getElementById('signupName').value.trim()
+      const email = document.getElementById('signupEmail').value.trim()
+      const pass = document.getElementById('signupPassword').value
+      const errEl = document.getElementById('signupError')
+
+      if (!name || !email || !pass) {
+        errEl.textContent = 'Please fill in all fields.'
+        errEl.style.display = 'block'
+        return
+      }
+
+      if (pass.length < 8) {
+        errEl.textContent = 'Password must be at least 8 characters.'
+        errEl.style.display = 'block'
+        return
+      }
+
+      errEl.style.display = 'none'
+      document.getElementById('signupForm').style.display = 'none'
+      document.getElementById('successMsg').style.display = 'block'
+    }
+
+    // ─── Smooth scroll ───────────────────────────────────
+    document.querySelectorAll('a[href="#how"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault()
+        document.getElementById('how').scrollIntoView({ behavior: 'smooth' })
+      })
+    })
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal()
+    })
+  </script>
+</body>
+</html>
